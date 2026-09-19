@@ -3,18 +3,17 @@ package com.example.nto.service.impl;
 import com.example.nto.controller.dto.BookingCreateDto;
 import com.example.nto.controller.dto.PlaceDto;
 import com.example.nto.entity.Booking;
-import com.example.nto.entity.Employee;
 import com.example.nto.entity.Place;
+import com.example.nto.entity.User;
 import com.example.nto.exception.BookingAlreadyExistsException;
-import com.example.nto.exception.EmployeeNotFoundException;
 import com.example.nto.exception.PlaceNotFoundException;
+import com.example.nto.exception.UserNotFoundException;
 import com.example.nto.repository.BookingRepository;
-import com.example.nto.repository.EmployeeRepository;
 import com.example.nto.repository.PlaceRepository;
+import com.example.nto.repository.UserRepository;
 import com.example.nto.service.BookingService;
 import com.example.nto.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,17 +27,16 @@ import java.util.stream.Collectors;
 public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
-    private final EmployeeRepository employeeRepository;
     private final PlaceRepository placeRepository;
     private final EmployeeService employeeService;
 
-    @Value("${booking.days-ahead}")
-    private int daysAhead;
+    private final int daysAhead = 3;
+
+    private final UserRepository userRepository;
 
     @Override
     @Transactional(readOnly = true)
-    public Map<LocalDate, List<PlaceDto>> getFreePlace(String code) {
-        employeeService.auth(code);
+    public Map<LocalDate, List<PlaceDto>> getFreePlace() {
 
         List<Place> allPlaces = placeRepository.findAll();
 
@@ -72,15 +70,12 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public Booking create(String code, BookingCreateDto bookingCreateDto) {
+    public Booking create(BookingCreateDto bookingCreateDto, User user) {
         LocalDate date = bookingCreateDto.getDate();
         LocalDate today = LocalDate.now(ZoneId.systemDefault());
         if (date.isBefore(today) || date.isAfter(today.plusDays(daysAhead))) {
             throw new IllegalArgumentException("Date is out of booking window");
         }
-
-        Employee employee = employeeRepository.findByCode(code)
-                .orElseThrow(() -> new EmployeeNotFoundException("Employee with " + code + " code not found!"));
 
         long placeId = bookingCreateDto.getPlaceId();
         Place place = placeRepository.findById(placeId)
@@ -90,13 +85,13 @@ public class BookingServiceImpl implements BookingService {
             throw new BookingAlreadyExistsException("Booking already exists");
         }
 
-        if (bookingRepository.findByDateAndEmployee(date, employee).isPresent()) {
+        if (bookingRepository.findByDateAndUser(date, user).isPresent()) {
             throw new BookingAlreadyExistsException("This employee already has another booking on " + date);
         }
 
         Booking booking = Booking.builder()
                 .date(date)
-                .employee(employee)
+                .user(user)
                 .place(place)
                 .build();
 

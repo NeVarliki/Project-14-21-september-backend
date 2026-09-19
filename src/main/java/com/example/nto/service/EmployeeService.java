@@ -1,9 +1,10 @@
 package com.example.nto.service;
 
-import com.example.nto.controller.dto.EmployeeDto;
+import com.example.nto.controller.dto.UserDTO;
+
+import java.util.Map;
 
 public interface EmployeeService {
-    EmployeeDto getByCode(String code);
-
-    void auth(String code);
+    UserDTO getByUsername(String username);
+    Map<String, String> getList();
 }
