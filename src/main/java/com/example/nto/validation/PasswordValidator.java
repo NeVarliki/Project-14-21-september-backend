@@ -22,6 +22,17 @@ public class PasswordValidator implements ConstraintValidator<Password, AuthRequ
                 return false;
             }
         }
+        int counter = 0;
+        for (int i = 1; i < dto.password().length(); i++) {
+            if(String.valueOf(dto.password().charAt(i)).equals(String.valueOf(dto.password().charAt(i-1)))){
+                counter++;
+                if(counter == 3){
+                    result = false;
+                }
+            } else{
+                counter = 0;
+            }
+        }
         return result;
     }
 }

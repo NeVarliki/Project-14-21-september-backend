@@ -86,7 +86,7 @@ public class BookingServiceImpl implements BookingService {
         }
 
         if (bookingRepository.findByDateAndUser(date, user).isPresent()) {
-            throw new BookingAlreadyExistsException("This employee already has another booking on " + date);
+            throw new BookingAlreadyExistsException("Already has another booking on " + date);
         }
 
         Booking booking = Booking.builder()
@@ -96,5 +96,30 @@ public class BookingServiceImpl implements BookingService {
                 .build();
 
         return bookingRepository.save(booking);
+    }
+
+    @Override
+    public Booking createForToday(long placeId, User user) {
+        LocalDate today = LocalDate.now(ZoneId.systemDefault());
+        Place place = placeRepository.findById(placeId)
+                .orElseThrow(() -> new PlaceNotFoundException("Place with " + placeId + " id not found!"));
+        if (bookingRepository.findByDateAndPlace(today, place).isPresent()) {
+            throw new BookingAlreadyExistsException("Booking already exists");
+        }
+        if (bookingRepository.findByDateAndUser(today, user).isPresent()) {
+            throw new BookingAlreadyExistsException("Already has another booking on " + today);
+        }
+
+        Booking booking = Booking.builder()
+                .date(today)
+                .user(user)
+                .place(place)
+                .build();
+        return bookingRepository.save(booking);
+    }
+
+    @Override
+    public void free(User user) {
+        bookingRepository.deleteByUser(user);
     }
 }

@@ -1,6 +1,7 @@
 package com.example.nto.controller;
 
 import com.example.nto.controller.dto.BookingCreateDto;
+import com.example.nto.controller.dto.BookingForTodayCreateDTO;
 import com.example.nto.controller.dto.PlaceDto;
 import com.example.nto.entity.User;
 import com.example.nto.service.BookingService;
@@ -31,6 +32,14 @@ public class BookingController {
     @PostMapping("/book")
     public void create(@RequestBody @Valid BookingCreateDto bookingCreateDto, @AuthenticationPrincipal User user) {
         bookingService.create(bookingCreateDto, user);
+    }
+    @PostMapping("/room")
+    public void room(@RequestBody @Valid BookingForTodayCreateDTO place, @AuthenticationPrincipal User user){
+        bookingService.createForToday(place.id(), user);
+    }
+    @PostMapping("/free")
+    public void free(@AuthenticationPrincipal User user){
+        bookingService.free(user);
     }
 
 }

@@ -22,7 +22,7 @@ public class Booking {
 
     @Column(name = "date")
     private LocalDate date;
-    @ManyToOne(targetEntity = Place.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(targetEntity = Place.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "place_id")
     private Place place;
     @ManyToOne(fetch = FetchType.LAZY)

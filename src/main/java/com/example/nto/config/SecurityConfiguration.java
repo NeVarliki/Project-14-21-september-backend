@@ -29,10 +29,10 @@ public class SecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                 req ->
-                        req
-                                .requestMatchers( "/api/book", "/api/booking").hasAuthority(Roles.EMPLOYEE.name())
-                                .requestMatchers("/api/info", "/api/list").authenticated()
-                                .anyRequest().anonymous())
+                        req.requestMatchers("/api/room", "api/free").hasAuthority(Roles.ROOM.name())
+                                .requestMatchers( "/api/booking").hasAnyAuthority(Roles.EMPLOYEE.name(), Roles.ROOM.name())
+                                .requestMatchers("/api/info", "/api/list", "/api/book").hasAuthority(Roles.EMPLOYEE.name())
+                                .anyRequest().permitAll())
                 .formLogin(AbstractHttpConfigurer::disable)
                 .authenticationProvider(provider())
                 .userDetailsService(userDetailsService)

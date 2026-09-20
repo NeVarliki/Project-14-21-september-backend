@@ -13,4 +13,7 @@ public interface BookingService {
     Map<LocalDate, List<PlaceDto>> getFreePlace();
 
     Booking create(BookingCreateDto bookingCreateDto, User user);
+    Booking createForToday(long placeId, User user);
+    void free(User user);
+
 }

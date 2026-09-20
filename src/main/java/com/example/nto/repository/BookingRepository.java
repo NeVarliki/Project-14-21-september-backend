@@ -16,7 +16,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findByDateBetween(LocalDate start, LocalDate end);
 
     Optional<Booking> findByDateAndPlace(LocalDate date, Place place);
-
+    void deleteByUser(User user);
     Optional<Booking> findByDateAndUser(LocalDate date, User user);
     List<Booking> findAllByUser(User user);
 }
